@@ -1,7 +1,7 @@
 # arg-financial-local
 
 Pipeline local para recolectar y exportar datos económicos argentinos.
-Descarga desde APIs públicas → guarda en SQLite → exporta CSV/Parquet a [`arg-financial-data`](https://github.com/mzurita/arg-financial-data).
+Descarga desde APIs públicas → guarda en SQLite → exporta CSV/Parquet a [`arg-financial-data`](https://github.com/maximilianozurita/arg-financial-data).
 
 ## Stack
 
