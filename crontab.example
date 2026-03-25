@@ -1,0 +1,15 @@
+# Crontab para arg-financial-local
+# Editar con: crontab -e
+# Ver logs en: /var/log/arg-financial.log
+#
+# Variables de entorno — ajustar rutas
+REPO=/opt/arg-financial-local
+DATA=/opt/arg-financial-data
+PYTHON=/opt/arg-financial-local/.venv/bin/python
+LOG=/var/log/arg-financial.log
+
+# Lunes a viernes a las 8:00 — fuentes diarias (BCRA + Bluelytics + ArgentinaDatos)
+0 8 * * 1-5  cd $REPO && $PYTHON fetch.py bcra bluelytics argentinadatos >> $LOG 2>&1 && $PYTHON export.py $DATA >> $LOG 2>&1 && cd $DATA && git add -A && git commit -m "data: update $(date +\%Y-\%m-\%d)" && git push
+
+# El día 6 de cada mes a las 8:00 — fuentes mensuales (INDEC + MECON)
+0 8 6 * *    cd $REPO && $PYTHON fetch.py indec mecon >> $LOG 2>&1 && $PYTHON export.py $DATA >> $LOG 2>&1 && cd $DATA && git add -A && git commit -m "data: monthly update $(date +\%Y-\%m-\%d)" && git push
