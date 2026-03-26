@@ -3,16 +3,30 @@
 Export SQLite → CSV + Parquet + metadata.json + all_series files.
 
 Usage:
+    # Solo local
     python export.py /path/to/arg-financial-data
+
+    # Local + git push
+    python export.py /path/to/arg-financial-data --push
+    python export.py /path/to/arg-financial-data --push --remote upstream --branch main
+
+    # Con .env (DATA_REPO, GIT_REMOTE, GIT_BRANCH)
+    python export.py --push
 """
+import argparse
 import json
+import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
+from dotenv import load_dotenv
 
 from db import get_conn
+
+load_dotenv()
 
 
 def slugify(nombre: str) -> str:
@@ -130,8 +144,44 @@ def export(data_repo: Path) -> None:
     print(f"Timestamp: {now}")
 
 
+def git_push(data_repo: Path, remote: str, branch: str) -> None:
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    cmds = [
+        ["git", "-C", str(data_repo), "add", "-A"],
+        ["git", "-C", str(data_repo), "commit", "-m", f"data: update {now}"],
+        ["git", "-C", str(data_repo), "push", remote, branch],
+    ]
+    for cmd in cmds:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            # commit vacío no es error
+            if "nothing to commit" in result.stdout or "nothing to commit" in result.stderr:
+                print("  git: nada nuevo para commitear, skip push.")
+                return
+            print(f"  ERROR en {' '.join(cmd[2:])}:\n{result.stderr.strip()}")
+            sys.exit(1)
+        if result.stdout.strip():
+            print(f"  {result.stdout.strip()}")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python export.py /path/to/arg-financial-data")
-        sys.exit(1)
-    export(Path(sys.argv[1]))
+    parser = argparse.ArgumentParser(description="Export SQLite → CSV/Parquet/JSON")
+    parser.add_argument("data_repo", nargs="?", type=Path, help="Path al directorio destino (clon de arg-financial-data). Por defecto usa DATA_REPO del .env")
+    parser.add_argument("--push", action="store_true", help="Hacer git add + commit + push al terminar")
+    parser.add_argument("--remote", default=None, help="Git remote (default: GIT_REMOTE del .env o 'origin')")
+    parser.add_argument("--branch", default=None, help="Git branch (default: GIT_BRANCH del .env o 'main')")
+    args = parser.parse_args()
+
+    data_repo = args.data_repo or (Path(os.environ["DATA_REPO"]) if os.environ.get("DATA_REPO") else None)
+    if not data_repo:
+        parser.error("Especificá el path como argumento o configurá DATA_REPO en .env")
+
+    remote = args.remote or os.environ.get("GIT_REMOTE", "origin")
+    branch = args.branch or os.environ.get("GIT_BRANCH", "main")
+
+    export(data_repo)
+
+    if args.push:
+        print(f"\nPusheando a {remote}/{branch}...")
+        git_push(data_repo, remote, branch)
+        print("Push completado.")

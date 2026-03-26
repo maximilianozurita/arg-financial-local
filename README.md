@@ -17,6 +17,23 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Configuración del repo de datos
+
+Este pipeline escribe en un repo separado (`arg-financial-data`). Para usarlo con tu propia cuenta:
+
+1. Forkeá [arg-financial-data](https://github.com/maximilianozurita/arg-financial-data) en tu cuenta de GitHub
+2. Cloná tu fork localmente:
+   ```bash
+   git clone https://github.com/TU_USUARIO/arg-financial-data /ruta/local/arg-financial-data
+   ```
+3. Copiá el archivo de entorno y editalo:
+   ```bash
+   cp .env.example .env
+   # editar DATA_REPO con la ruta del paso anterior
+   ```
+
+`.env` no se sube al repo (incluido en `.gitignore`).
+
 ## Uso
 
 ```bash
@@ -30,8 +47,14 @@ python fetch.py indec mecon
 # Ver estado de la base de datos
 python status.py
 
-# Exportar a arg-financial-data (CSV + Parquet + JSON)
-python export.py /ruta/a/arg-financial-data
+# Exportar a arg-financial-data (usa DATA_REPO del .env)
+python export.py
+
+# Exportar + git push automático
+python export.py --push
+
+# Sobreescribir path o remote puntualmente
+python export.py /otra/ruta --push --remote origin --branch main
 ```
 
 ## Fuentes y series
@@ -65,10 +88,10 @@ crontab -e
 
 ```
 # Lunes a viernes 8:00 — fuentes diarias
-0 8 * * 1-5  cd /opt/arg-financial-local && .venv/bin/python fetch.py bcra bluelytics argentinadatos && .venv/bin/python export.py /opt/arg-financial-data && cd /opt/arg-financial-data && git add -A && git commit -m "data: update $(date +%Y-%m-%d)" && git push
+0 8 * * 1-5  cd /opt/arg-financial-local && .venv/bin/python fetch.py bcra bluelytics argentinadatos && .venv/bin/python export.py --push
 
 # Día 6 de cada mes — fuentes mensuales
-0 8 6 * *    cd /opt/arg-financial-local && .venv/bin/python fetch.py indec mecon && .venv/bin/python export.py /opt/arg-financial-data && cd /opt/arg-financial-data && git add -A && git commit -m "data: monthly update $(date +%Y-%m-%d)" && git push
+0 8 6 * *    cd /opt/arg-financial-local && .venv/bin/python fetch.py indec mecon && .venv/bin/python export.py --push
 ```
 
 ## Base de datos
