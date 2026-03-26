@@ -144,6 +144,18 @@ def export(data_repo: Path) -> None:
     print(f"Timestamp: {now}")
 
 
+def git_pull(data_repo: Path, remote: str, branch: str) -> None:
+    result = subprocess.run(
+        ["git", "-C", str(data_repo), "pull", "--rebase", remote, branch],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        print(f"  ERROR en git pull:\n{result.stderr.strip()}")
+        sys.exit(1)
+    if result.stdout.strip():
+        print(f"  {result.stdout.strip()}")
+
+
 def git_push(data_repo: Path, remote: str, branch: str) -> None:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     cmds = [
@@ -178,6 +190,10 @@ if __name__ == "__main__":
 
     remote = args.remote or os.environ.get("GIT_REMOTE", "origin")
     branch = args.branch or os.environ.get("GIT_BRANCH", "main")
+
+    if args.push:
+        print(f"\nSincronizando con {remote}/{branch}...")
+        git_pull(data_repo, remote, branch)
 
     export(data_repo)
 
