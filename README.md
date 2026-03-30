@@ -3,10 +3,21 @@
 Pipeline local para recolectar y exportar datos económicos argentinos.
 Descarga desde APIs públicas → guarda en SQLite → exporta CSV/Parquet a [`arg-financial-data`](https://github.com/maximilianozurita/arg-financial-data).
 
+## Documentación
+
+| | |
+|---|---|
+| [Arquitectura](docs/arquitectura.md) | Diseño del sistema, componentes y flujo de datos |
+| [Estructura](docs/estructura.md) | Organización del proyecto y responsabilidades |
+| [Instalación](docs/instalacion.md) | Requisitos y pasos para correr el proyecto |
+| [Decisiones técnicas](docs/decisiones.md) | Trade-offs y justificaciones de diseño |
+
+---
+
 ## Stack
 
-- Python 3.11+ con `httpx`, `pandas`, `pyarrow`
-- SQLite como base de datos local (backup histórico)
+- Python 3.10+ con `httpx`, `pandas`, `pyarrow`
+- SQLite como base de datos local
 - Crontab para scheduling en Linux
 
 ## Setup
@@ -60,7 +71,7 @@ python export.py /otra/ruta --push --remote origin --branch main
 ## Fuentes y series
 
 | Fuente | Series | Frecuencia |
-|--------|--------|-----------|
+|--------|--------|------------|
 | **BCRA** | Reservas, Base Monetaria, TC Minorista, BADLAR, Tasa Política Monetaria, Pases Pasivos, Inflación Esperada (REM) | Diaria |
 | **Bluelytics** | Dólar Blue compra/venta, Dólar Oficial compra/venta | Diaria |
 | **ArgentinaDatos** | Dólar MEP compra/venta, Dólar CCL compra/venta, Riesgo País | Diaria |
@@ -78,23 +89,36 @@ metadata.json                     ← catálogo de series
 latest.json                       ← último valor por serie
 ```
 
-## Scheduling (Linux)
-
-Ver [`crontab.example`](crontab.example) para la configuración completa.
+## Scheduling (crontab)
 
 ```bash
-crontab -e
+# Instalar el crontab de producción (con deduplicación por flags)
+crontab crontab.real
+
+# Ejecutar manualmente
+./run_fetch.sh daily bcra bluelytics argentinadatos
+./run_fetch.sh monthly indec mecon
+
+# Ver logs
+tail -f logs/fetch.log
 ```
 
-```
-# Lunes a viernes 8:00 — fuentes diarias
-0 8 * * 1-5  cd /opt/arg-financial-local && .venv/bin/python fetch.py bcra bluelytics argentinadatos && .venv/bin/python export.py --push
+El script `run_fetch.sh` evita re-descargas usando flags en `db/`:
+- `db/.last_daily_run` — fecha YYYY-MM-DD de la última ejecución diaria exitosa
+- `db/.last_monthly_run` — mes YYYY-MM de la última ejecución mensual exitosa
 
-# Día 6 de cada mes — fuentes mensuales
-0 8 6 * *    cd /opt/arg-financial-local && .venv/bin/python fetch.py indec mecon && .venv/bin/python export.py --push
-```
+Si el cron dispara dos veces el mismo día/mes, la segunda salida sin hacer nada.
+Para forzar una re-ejecución: `rm db/.last_daily_run` o `rm db/.last_monthly_run`.
 
 ## Base de datos
 
 SQLite en `db/data.db`. No se sube al repo (incluido en `.gitignore`).
 Es el backup histórico local; la fuente pública son los archivos en `arg-financial-data`.
+
+## Configuración (.env)
+
+| Variable | Descripción | Default |
+|----------|-------------|---------|
+| `DATA_REPO` | Path al clon local de `arg-financial-data` | — |
+| `GIT_REMOTE` | Nombre del remote git | `origin` |
+| `GIT_BRANCH` | Branch de destino | `main` |
