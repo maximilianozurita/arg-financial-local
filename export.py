@@ -145,15 +145,16 @@ def export(data_repo: Path) -> None:
 
 
 def git_pull(data_repo: Path, remote: str, branch: str) -> None:
-    result = subprocess.run(
-        ["git", "-C", str(data_repo), "pull", "--rebase", remote, branch],
-        capture_output=True, text=True,
-    )
-    if result.returncode != 0:
-        print(f"  ERROR en git pull:\n{result.stderr.strip()}")
-        sys.exit(1)
-    if result.stdout.strip():
-        print(f"  {result.stdout.strip()}")
+    for cmd in [
+        ["git", "-C", str(data_repo), "fetch", remote, branch],
+        ["git", "-C", str(data_repo), "rebase", f"{remote}/{branch}"],
+    ]:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"  ERROR en {' '.join(cmd[2:])}:\n{result.stderr.strip()}")
+            sys.exit(1)
+        if result.stdout.strip():
+            print(f"  {result.stdout.strip()}")
 
 
 def git_push(data_repo: Path, remote: str, branch: str) -> None:
