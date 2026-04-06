@@ -27,6 +27,16 @@ SERIES = [
         "IPI Manufacturero", "actividad", "índice", "mensual",
         "Índice de Producción Industrial Manufacturero - Serie original (INDEC, base 2004=100)",
     ),
+    (
+        "150.1_LA_POBREZA_0_D_13",
+        "Línea de Pobreza", "social", "ARS corrientes", "mensual",
+        "Línea de pobreza (canasta básica total) por adulto equivalente (INDEC, desde 2016)",
+    ),
+    (
+        "150.1_LA_INDICIA_0_D_16",
+        "Línea de Indigencia", "social", "ARS corrientes", "mensual",
+        "Línea de indigencia (canasta básica alimentaria) por adulto equivalente (INDEC, desde 2016)",
+    ),
 ]
 
 

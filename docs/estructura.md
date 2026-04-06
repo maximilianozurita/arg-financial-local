@@ -13,8 +13,8 @@ arg-financial-local/
 │   ├── base.py               # BaseScraper: clase base con helpers de DB
 │   ├── bcra.py               # API del Banco Central (7 series, paginación)
 │   ├── bluelytics.py         # API Bluelytics (4 series de TC)
-│   ├── indec.py              # API datos.gob.ar — series INDEC (4 series)
-│   ├── mecon.py              # API datos.gob.ar — Ministerio de Economía (1 serie)
+│   ├── indec.py              # API datos.gob.ar — series INDEC (6 series)
+│   ├── mecon.py              # API datos.gob.ar — Ministerio de Economía (4 series)
 │   └── argentinadatos.py     # API ArgentinaDatos (riesgo país + MEP + CCL)
 │
 ├── run_fetch.sh              # Wrapper bash para crontab: fetch + export --push + flag deduplicación

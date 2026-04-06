@@ -75,8 +75,8 @@ python export.py /otra/ruta --push --remote origin --branch main
 | **BCRA** | Reservas, Base Monetaria, TC Minorista, BADLAR, Tasa Política Monetaria, Pases Pasivos, Inflación Esperada (REM) | Diaria |
 | **Bluelytics** | Dólar Blue compra/venta, Dólar Oficial compra/venta | Diaria |
 | **ArgentinaDatos** | Dólar MEP compra/venta, Dólar CCL compra/venta, Riesgo País | Diaria |
-| **INDEC** | IPC Nivel General, EMAE, Índice de Salarios, IPI Manufacturero | Mensual |
-| **Ministerio de Economía** | Recaudación Tributaria | Mensual |
+| **INDEC** | IPC Nivel General, EMAE, Índice de Salarios, IPI Manufacturero, Línea de Pobreza, Línea de Indigencia | Mensual |
+| **Ministerio de Economía** | Recaudación Tributaria, Gasto Público Consolidado, Gasto Público Nacional, Gasto Corriente del Estado | Mensual/Anual/Trimestral |
 
 ## Archivos generados en arg-financial-data
 

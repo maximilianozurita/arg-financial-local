@@ -118,4 +118,5 @@ INDEX idx_dp_serie_fecha ON data_points(serie_id, fecha)
 | `actividad` | EMAE, IPI manufacturero |
 | `laboral` | Índice de salarios |
 | `financiero` | Riesgo país |
-| `fiscal` | Recaudación tributaria |
+| `fiscal` | Recaudación tributaria, gasto público |
+| `social` | Línea de pobreza e indigencia |
