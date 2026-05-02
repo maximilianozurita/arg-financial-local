@@ -15,6 +15,7 @@ from scrapers.bluelytics import BluelyticsScraper
 from scrapers.indec import INDECScraper
 from scrapers.mecon import MECONScraper
 from scrapers.argentinadatos import ArgentinaDatosScraper
+from scrapers.merval import MervalScraper
 
 SCRAPERS = {
     "bcra":            BCRAScraper,
@@ -22,6 +23,7 @@ SCRAPERS = {
     "indec":           INDECScraper,
     "mecon":           MECONScraper,
     "argentinadatos":  ArgentinaDatosScraper,
+    "merval":          MervalScraper,
 }
 
 
